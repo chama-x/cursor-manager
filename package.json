@@ -1,27 +1,68 @@
 {
-  "name": "cursor-manager",
+  "name": "cursor-session-manager",
   "private": true,
-  "version": "0.1.0",
+  "version": "1.0.0",
   "type": "module",
+  "description": "A professional desktop application for managing and launching Cursor IDE sessions with ease",
+  "author": "Cursor Session Manager Team",
+  "license": "MIT",
+  "keywords": ["cursor", "ide", "session-manager", "development", "productivity", "desktop-app"],
+  "homepage": "https://github.com/cursor-session-manager/app",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cursor-session-manager/app.git"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
-    "tauri": "tauri"
+    "tauri": "tauri",
+    "tauri:dev": "tauri dev",
+    "tauri:build": "tauri build",
+    "tauri:build:windows": "tauri build --target x86_64-pc-windows-msvc",
+    "tauri:build:macos": "tauri build --target aarch64-apple-darwin",
+    "tauri:build:macos-intel": "tauri build --target x86_64-apple-darwin",
+    "tauri:build:linux": "tauri build --target x86_64-unknown-linux-gnu",
+    "build:all": "npm run build && npm run tauri:build",
+    "clean": "rm -rf dist src-tauri/target",
+    "test": "echo \"No tests specified\" && exit 0"
   },
   "dependencies": {
-    "@tauri-apps/api": "^2.0.0",
-    "@tauri-apps/plugin-shell": "^2.0.0",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "@tauri-apps/api": "^2.1.1",
+    "@tauri-apps/plugin-fs": "^2.0.3",
+    "@tauri-apps/plugin-shell": "^2.0.1",
+    "@tauri-apps/plugin-os": "^2.0.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
-    "@tauri-apps/cli": "^2.0.0",
-    "@types/node": "^22.15.29",
-    "@types/react": "^19.1.6",
-    "@types/react-dom": "^19.1.6",
-    "@vitejs/plugin-react": "^4.5.1",
-    "typescript": "^5.6.3",
-    "vite": "^5.0.0"
+    "@tauri-apps/cli": "^2.1.0",
+    "@types/react": "^18.2.43",
+    "@types/react-dom": "^18.2.17",
+    "@typescript-eslint/eslint-plugin": "^6.14.0",
+    "@typescript-eslint/parser": "^6.14.0",
+    "@vitejs/plugin-react": "^4.2.1",
+    "eslint": "^8.55.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.5",
+    "typescript": "^5.2.2",
+    "vite": "^5.0.8"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "os": ["win32", "darwin", "linux"],
+  "cpu": ["x64", "arm64"],
+  "tauri": {
+    "bundle": {
+      "targets": ["dmg", "msi", "deb", "appimage"],
+      "windows": {
+        "wix": {
+          "language": "en-US"
+        }
+      }
+    }
   }
 }

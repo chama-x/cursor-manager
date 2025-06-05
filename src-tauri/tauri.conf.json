@@ -1,8 +1,8 @@
 {
   "$schema": "https://v2.tauri.app/schema.json",
   "productName": "Cursor Session Manager",
-  "version": "0.1.0",
-  "identifier": "com.cursor-manager.dev",
+  "version": "1.0.0",
+  "identifier": "com.cursor-manager.app",
   "build": {
     "beforeDevCommand": "pnpm dev",
     "devUrl": "http://localhost:1420",
@@ -10,6 +10,8 @@
     "frontendDist": "../dist"
   },
   "app": {
+    "macOSPrivateApi": true,
+    "withGlobalTauri": true,
     "security": {
       "csp": null,
       "capabilities": ["default"]
@@ -17,22 +19,27 @@
     "windows": [
       {
         "title": "Cursor Session Manager",
-        "width": 800,
-        "height": 600,
+        "width": 1200,
+        "height": 800,
+        "minWidth": 800,
+        "minHeight": 600,
+        "maxWidth": 1800,
+        "maxHeight": 1200,
         "resizable": true,
         "fullscreen": false,
+        "maximized": false,
         "center": true,
-        "label": "main"
+        "skipTaskbar": false,
+        "decorations": false,
+        "transparent": true,
+        "shadow": true
       }
     ]
   },
-  "plugins": {
-    "shell": {
-      "open": true
-    }
-  },
   "bundle": {
     "active": true,
+    "category": "DeveloperTool",
+    "copyright": "© 2025 Cursor Session Manager",
     "targets": "all",
     "icon": [
       "icons/32x32.png",
@@ -40,6 +47,21 @@
       "icons/128x128@2x.png",
       "icons/icon.icns",
       "icons/icon.ico"
-    ]
+    ],
+    "windows": {
+      "certificateThumbprint": null,
+      "digestAlgorithm": "sha256",
+      "timestampUrl": ""
+    },
+    "macOS": {
+      "frameworks": [],
+      "minimumSystemVersion": "10.13",
+      "exceptionDomain": ""
+    }
+  },
+  "plugins": {
+    "os": {
+      "version": "*"
+    }
   }
 }

@@ -27,6 +27,99 @@ function App() {
   const [projectPaths, setProjectPaths] = useState('');
   const [spoofMacAddress, setSpoofMacAddress] = useState(false);
 
+  // Mock time tracking data - in real implementation, this would come from backend
+  const [sessionUsageData] = useState<Record<string, { totalMinutes: number; weeklyData: number[] }>>({
+    'personal': { totalMinutes: 1247, weeklyData: [45, 67, 23, 89, 56, 78, 34] },
+    'CHAMATH': { totalMinutes: 234, weeklyData: [12, 23, 8, 34, 18, 28, 11] },
+    'work': { totalMinutes: 2156, weeklyData: [78, 89, 67, 123, 89, 98, 45] },
+    'CHX': { totalMinutes: 89, weeklyData: [5, 8, 3, 12, 7, 9, 4] }
+  });
+
+  // Disable context menu and keyboard shortcuts
+  useEffect(() => {
+    // Disable context menu
+    const handleContextMenu = (e: MouseEvent) => {
+      e.preventDefault();
+      return false;
+    };
+
+    // Disable F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (
+        e.key === 'F12' ||
+        (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J')) ||
+        (e.ctrlKey && e.key === 'U')
+      ) {
+        e.preventDefault();
+        return false;
+      }
+    };
+
+    // Disable selection of text in production
+    const handleSelectStart = (e: Event) => {
+      const target = e.target as HTMLElement;
+      // Allow selection in form inputs
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
+        return true;
+      }
+      e.preventDefault();
+      return false;
+    };
+
+    document.addEventListener('contextmenu', handleContextMenu);
+    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('selectstart', handleSelectStart);
+
+    return () => {
+      document.removeEventListener('contextmenu', handleContextMenu);
+      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('selectstart', handleSelectStart);
+    };
+  }, []);
+
+  // Window control handlers for desktop app
+  const handleMinimize = async () => {
+    try {
+      const { getCurrentWindow } = await import('@tauri-apps/api/window');
+      const window = getCurrentWindow();
+      await window.minimize();
+    } catch (error) {
+      console.error('Failed to minimize window:', error);
+    }
+  };
+
+  const handleClose = async () => {
+    try {
+      const { getCurrentWindow } = await import('@tauri-apps/api/window');
+      const window = getCurrentWindow();
+      await window.close();
+    } catch (error) {
+      console.error('Failed to close window:', error);
+    }
+  };
+
+  // Calculate Bento grid size based on usage
+  const calculateGridSize = (sessionId: string) => {
+    const usage = sessionUsageData[sessionId];
+    if (!usage) return 'normal';
+    
+    const totalMinutes = usage.totalMinutes;
+    
+    // Dynamic sizing algorithm
+    if (totalMinutes > 1500) return 'large'; // Heavy users get big cards
+    if (totalMinutes > 600) return 'normal'; // Regular users get normal cards
+    return 'small'; // Light users get small cards
+  };
+
+  const formatUsageTime = (minutes: number) => {
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = minutes % 60;
+    
+    if (hours === 0) return `${remainingMinutes}m`;
+    if (remainingMinutes === 0) return `${hours}h`;
+    return `${hours}h ${remainingMinutes}m`;
+  };
+
   useEffect(() => {
     loadSessions();
   }, []);
@@ -95,9 +188,6 @@ function App() {
     setCurrentStatus('Initializing session launch...');
     
     try {
-      // Remove duplicate MAC spoofing - let the backend handle it
-      console.log(`[DEBUG] Calling launchSession with spoofMac=${spoofMacAddress}`);
-      
       if (spoofMacAddress) {
         setCurrentStatus('🔄 Spoofing MAC address... (this may take up to 60 seconds)');
       } else {
@@ -129,9 +219,9 @@ function App() {
       const errorStr = String(error);
       
       if (errorStr.includes('timed out')) {
-        errorMessage = '⏱️ Operation timed out. Please check your network connection and sudo permissions.';
+        errorMessage = '⏱️ Operation timed out. Please check your network connection and permissions.';
       } else if (errorStr.includes('sudo access')) {
-        errorMessage = '🔐 MAC spoofing requires sudo access. Please check the settings tab for setup instructions.';
+        errorMessage = '🔐 MAC spoofing requires admin access. Please check the settings tab for setup instructions.';
       } else if (errorStr.includes('Session directory not found')) {
         errorMessage = '📁 Session directory not found. Please try creating the session again.';
       } else {
@@ -212,177 +302,226 @@ function App() {
   };
 
   return (
-    <div className="container">
-      <header>
-        <h1>Cursor Session Manager</h1>
-        <p>Manage your Cursor IDE sessions with style and efficiency</p>
-      </header>
+    <div className="app-container">
+      {/* Transparent Window Frame */}
+      <div className="window-frame">
+        {/* Custom Window Controls for Desktop App */}
+        <div className="window-controls">
+          <button className="window-control minimize" onClick={handleMinimize} title="Minimize">
+            −
+          </button>
+          <button className="window-control close" onClick={handleClose} title="Close">
+            ×
+          </button>
+        </div>
 
-      <div className="tabs">
-        <button
-          className={`tab-button ${activeTab === 'sessions' ? 'active' : ''}`}
-          onClick={() => setActiveTab('sessions')}
-        >
-          <span>🖥️</span> Sessions
-        </button>
-        <button
-          className={`tab-button ${activeTab === 'settings' ? 'active' : ''}`}
-          onClick={() => setActiveTab('settings')}
-        >
-          <span>⚙️</span> Settings
-        </button>
-      </div>
-
-      {/* Sessions Tab */}
-      {activeTab === 'sessions' && (
-        <div className="card no-hover">
-          <div className="flex justify-between items-center" style={{ marginBottom: 'var(--space-xl)' }}>
-            <h3 className="text-gradient">My Sessions</h3>
-            <button 
-              className="btn btn-primary"
-              onClick={() => setFormVisible(true)}
-              disabled={loading}
-            >
-              {loading && <div className="loading-spinner"></div>}
-              <span>➕</span> New Session
-            </button>
+        <header className="compact-header">
+          <div className="header-content">
+            <div className="header-text">
+              <h1>Cursor Session Manager</h1>
+              <p>Manage your Cursor IDE sessions with style and efficiency</p>
+            </div>
+            <nav className="header-nav">
+              <button
+                className={`nav-button ${activeTab === 'sessions' ? 'active' : ''}`}
+                onClick={() => setActiveTab('sessions')}
+              >
+                <span>🖥️</span> Sessions
+              </button>
+              <button
+                className={`nav-button ${activeTab === 'settings' ? 'active' : ''}`}
+                onClick={() => setActiveTab('settings')}
+              >
+                <span>⚙️</span> Settings
+              </button>
+            </nav>
           </div>
+        </header>
 
-          {currentStatus && (
-            <div className="status-display">
-              <strong>Status:</strong> {currentStatus}
-            </div>
-          )}
+        <div className="main-content">
+          {/* Sessions Tab */}
+          {activeTab === 'sessions' && (
+            <div className="card no-hover">
+              <div className="flex justify-between items-center" style={{ marginBottom: 'var(--space-xl)' }}>
+                <h3 className="text-gradient">My Sessions</h3>
+                <button 
+                  className="btn btn-primary"
+                  onClick={() => setFormVisible(true)}
+                  disabled={loading}
+                >
+                  {loading && <div className="loading-spinner"></div>}
+                  <span>➕</span> New Session
+                </button>
+              </div>
 
-          {loading && !currentStatus ? (
-            <div className="text-center" style={{ padding: 'var(--space-2xl)' }}>
-              <div className="loading-spinner" style={{ margin: '0 auto var(--space-md)' }}></div>
-              <p>Loading sessions...</p>
-            </div>
-          ) : (
-            <div className="sessions-container">
-              {sessions.length === 0 ? (
+              {currentStatus && (
+                <div className="status-display">
+                  <strong>Status:</strong> {currentStatus}
+                </div>
+              )}
+
+              {loading && !currentStatus ? (
                 <div className="text-center" style={{ padding: 'var(--space-2xl)' }}>
-                  <div style={{ fontSize: 'var(--text-4xl)', marginBottom: 'var(--space-md)' }}>🎯</div>
-                  <h3 style={{ marginBottom: 'var(--space-sm)' }}>No sessions found</h3>
-                  <p className="help-text">Create your first session to get started with Cursor Session Manager</p>
+                  <div className="loading-spinner" style={{ margin: '0 auto var(--space-md)' }}></div>
+                  <p>Loading sessions...</p>
                 </div>
               ) : (
-                <div className="sessions-grid">
-                  {sessions.map((session) => (
-                    <div key={session.id} className="session-card">
-                      <div className="session-content">
-                        <div className="session-info">
-                          <div className="session-header">
-                            <span className="session-icon">🖥️</span>
-                            <h4 className="session-name">{session.name}</h4>
-                          </div>
-                          <div className="session-details">
-                            <div className="session-stat">
-                              <span>📁 Projects: {session.projects.length}</span>
-                            </div>
-                            <div className="session-stat">
-                              <span>📅 Created: {formatDate(session.created_date)}</span>
-                            </div>
-                          </div>
-                          <div className="session-actions">
-                            <button
-                              className="btn-compact btn-primary"
-                              onClick={() => handleLaunchSession(session)}
-                              disabled={loading}
-                              title="Launch Session"
-                            >
-                              {loading && <div className="loading-spinner-small"></div>}
-                              <span>🚀</span>
-                            </button>
-                            <button
-                              className="btn-compact btn-danger"
-                              onClick={() => handleDeleteSession(session.id, session.name)}
-                              disabled={loading}
-                              title="Delete Session"
-                            >
-                              {loading && <div className="loading-spinner-small"></div>}
-                              <span>🗑️</span>
-                            </button>
-                          </div>
-                        </div>
-                        <div className="session-analytics">
-                          <div className="usage-chart">
-                            <div className="chart-header">
-                              <span className="chart-title">Weekly Usage</span>
-                            </div>
-                            <div className="pulse-chart">
-                              {/* Mock data for demonstration - will be dynamic later */}
-                              <div className="pulse-bar" style={{ height: '20%' }}></div>
-                              <div className="pulse-bar" style={{ height: '45%' }}></div>
-                              <div className="pulse-bar" style={{ height: '30%' }}></div>
-                              <div className="pulse-bar" style={{ height: '80%' }}></div>
-                              <div className="pulse-bar" style={{ height: '60%' }}></div>
-                              <div className="pulse-bar" style={{ height: '90%' }}></div>
-                              <div className="pulse-bar" style={{ height: '40%' }}></div>
-                            </div>
-                            <div className="usage-time">
-                              <span className="time-label">Total This Week</span>
-                              <span className="time-value">12h 34m</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
+                <div className="sessions-container">
+                  {sessions.length === 0 ? (
+                    <div className="text-center" style={{ padding: 'var(--space-2xl)' }}>
+                      <div style={{ fontSize: 'var(--text-4xl)', marginBottom: 'var(--space-md)' }}>🎯</div>
+                      <h3 style={{ marginBottom: 'var(--space-sm)' }}>No sessions found</h3>
+                      <p className="help-text">Create your first session to get started with Cursor Session Manager</p>
                     </div>
-                  ))}
+                  ) : (
+                    <div className="sessions-grid">
+                      {sessions.map((session) => {
+                        const gridSize = calculateGridSize(session.id);
+                        const usageData = sessionUsageData[session.id];
+                        
+                        return (
+                          <div key={session.id} className={`session-card ${gridSize}`}>
+                            <div className="session-content">
+                              <div className="session-info">
+                                <div className="session-header">
+                                  <span className="session-icon">🖥️</span>
+                                  <h4 className="session-name">{session.name}</h4>
+                                </div>
+                                <div className="session-details">
+                                  <div className="session-stat">
+                                    <span>📁 Projects: {session.projects.length}</span>
+                                  </div>
+                                  <div className="session-stat">
+                                    <span>📅 Created: {formatDate(session.created_date)}</span>
+                                  </div>
+                                </div>
+                                <div className="session-actions">
+                                  <button
+                                    className="btn-compact btn-primary"
+                                    onClick={() => handleLaunchSession(session)}
+                                    disabled={loading}
+                                    title="Launch Session"
+                                  >
+                                    {loading && <div className="loading-spinner-small"></div>}
+                                    <span>🚀</span>
+                                  </button>
+                                  <button
+                                    className="btn-compact btn-danger"
+                                    onClick={() => handleDeleteSession(session.id, session.name)}
+                                    disabled={loading}
+                                    title="Delete Session"
+                                  >
+                                    {loading && <div className="loading-spinner-small"></div>}
+                                    <span>🗑️</span>
+                                  </button>
+                                </div>
+                              </div>
+                              <div className="session-analytics">
+                                <div className="usage-chart">
+                                  <div className="chart-header">
+                                    <span className="chart-title">Weekly Usage</span>
+                                  </div>
+                                  <div className="pulse-chart">
+                                    {usageData?.weeklyData.map((value, index) => {
+                                      const maxValue = Math.max(...usageData.weeklyData);
+                                      const height = maxValue > 0 ? (value / maxValue) * 100 : 10;
+                                      return (
+                                        <div 
+                                          key={index} 
+                                          className="pulse-bar" 
+                                          style={{ height: `${Math.max(height, 8)}%` }}
+                                          title={`Day ${index + 1}: ${value}min`}
+                                        ></div>
+                                      );
+                                    })}
+                                  </div>
+                                  <div className="usage-time">
+                                    <span className="time-label">Total This Week</span>
+                                    <span className="time-value">{formatUsageTime(sessionUsageData[session.id]?.totalMinutes || 0)}</span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
           )}
-        </div>
-      )}
 
-      {/* Settings Tab */}
-      {activeTab === 'settings' && (
-        <div className="card no-hover">
-          <h3 className="text-gradient" style={{ marginBottom: 'var(--space-xl)' }}>
-            <span>⚙️</span> Settings
-          </h3>
-          
-          <div className="form-group">
-            <label className="flex items-center">
-              <input
-                type="checkbox"
-                checked={spoofMacAddress}
-                onChange={(e) => setSpoofMacAddress(e.target.checked)}
-              />
-              <span>🔐 Spoof MAC address when launching sessions</span>
-            </label>
-            <p className="help-text">
-              This will change your device's MAC address each time you launch a session, 
-              helping to avoid detection of multiple Cursor instances.
-            </p>
-          </div>
-          
-          {spoofMacAddress && (
-            <div className="setup-instructions">
-              <h4>🔧 MAC Spoofing Setup Required</h4>
-              <p>To enable MAC spoofing, you need to configure sudo permissions. Run this command in Terminal:</p>
-              <div className="code-block">
-                <code>sudo visudo</code>
+          {/* Settings Tab */}
+          {activeTab === 'settings' && (
+            <div className="card no-hover">
+              <h3 className="text-gradient" style={{ marginBottom: 'var(--space-xl)' }}>
+                <span>⚙️</span> Settings
+              </h3>
+              
+              <div className="form-group">
+                <label className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={spoofMacAddress}
+                    onChange={(e) => setSpoofMacAddress(e.target.checked)}
+                  />
+                  <span>🔐 Spoof MAC address when launching sessions</span>
+                </label>
+                <p className="help-text">
+                  This will change your device's MAC address each time you launch a session, 
+                  helping to avoid detection of multiple Cursor instances.
+                </p>
               </div>
-              <p>Then add this line at the end of the file:</p>
-              <div className="code-block">
-                <code>%admin ALL=(ALL) NOPASSWD: /usr/sbin/networksetup, /sbin/ifconfig</code>
+              
+              {spoofMacAddress && (
+                <div className="setup-instructions">
+                  <h4>🔧 MAC Spoofing Setup Required</h4>
+                  <p>To enable MAC spoofing, you need to configure admin permissions. Run this command in Terminal (macOS) or Command Prompt as Administrator (Windows):</p>
+                  
+                  <div style={{ marginTop: 'var(--space-md)' }}>
+                    <h5>macOS:</h5>
+                    <div className="code-block">
+                      <code>sudo visudo</code>
+                    </div>
+                    <p>Then add this line at the end of the file:</p>
+                    <div className="code-block">
+                      <code>%admin ALL=(ALL) NOPASSWD: /usr/sbin/networksetup, /sbin/ifconfig</code>
+                    </div>
+                  </div>
+
+                  <div style={{ marginTop: 'var(--space-lg)' }}>
+                    <h5>Windows:</h5>
+                    <div className="code-block">
+                      <code>netsh interface show interface</code>
+                    </div>
+                    <p>Note the interface name, then run:</p>
+                    <div className="code-block">
+                      <code>netsh interface set interface "Your Interface Name" admin=disable</code>
+                    </div>
+                    <div className="code-block">
+                      <code>reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Class\{'{4d36e972-e325-11ce-bfc1-08002be10318}'}\0001" /v NetworkAddress /t REG_SZ /d "NEW_MAC_ADDRESS" /f</code>
+                    </div>
+                    <div className="code-block">
+                      <code>netsh interface set interface "Your Interface Name" admin=enable</code>
+                    </div>
+                  </div>
+                  
+                  <p className="warning-text">
+                    <strong>⚠️ Warning:</strong> This allows elevated access to network commands. 
+                    Only do this on your personal machine.
+                  </p>
+                </div>
+              )}
+              
+              <div className="warning-text" style={{ marginTop: 'var(--space-xl)' }}>
+                <strong>💡 Note:</strong> If you're experiencing issues with Cursor instances, you may need to
+                clear machine-id or fingerprints. This functionality will be added in a future update.
               </div>
-              <p className="warning-text">
-                <strong>⚠️ Warning:</strong> This allows passwordless sudo access to network commands. 
-                Only do this on your personal machine.
-              </p>
             </div>
           )}
-          
-          <div className="warning-text" style={{ marginTop: 'var(--space-xl)' }}>
-            <strong>💡 Note:</strong> If you're experiencing issues with Cursor instances, you may need to
-            clear machine-id or fingerprints. This functionality will be added in a future update.
-          </div>
         </div>
-      )}
+      </div>
 
       {/* Create Session Modal */}
       <div className={`modal ${formVisible ? 'active' : ''}`}>
