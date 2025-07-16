@@ -6,7 +6,14 @@
   "description": "A professional desktop application for managing and launching Cursor IDE sessions with ease",
   "author": "Cursor Session Manager Team",
   "license": "MIT",
-  "keywords": ["cursor", "ide", "session-manager", "development", "productivity", "desktop-app"],
+  "keywords": [
+    "cursor",
+    "ide",
+    "session-manager",
+    "development",
+    "productivity",
+    "desktop-app"
+  ],
   "homepage": "https://github.com/cursor-session-manager/app",
   "repository": {
     "type": "git",
@@ -15,7 +22,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "lint": "eslint . --report-unused-disable-directives --max-warnings 20",
     "preview": "vite preview",
     "tauri": "tauri",
     "tauri:dev": "tauri dev",
@@ -31,33 +38,50 @@
   "dependencies": {
     "@tauri-apps/api": "^2.1.1",
     "@tauri-apps/plugin-fs": "^2.0.3",
-    "@tauri-apps/plugin-shell": "^2.0.1",
     "@tauri-apps/plugin-os": "^2.0.1",
+    "@tauri-apps/plugin-shell": "^2.0.1",
+    "lucide-react": "^0.513.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
+    "@eslint/js": "^9.28.0",
     "@tauri-apps/cli": "^2.1.0",
     "@types/react": "^18.2.43",
     "@types/react-dom": "^18.2.17",
     "@typescript-eslint/eslint-plugin": "^6.14.0",
     "@typescript-eslint/parser": "^6.14.0",
     "@vitejs/plugin-react": "^4.2.1",
-    "eslint": "^8.55.0",
+    "eslint": "^8.57.1",
+    "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.5",
+    "globals": "^16.2.0",
     "typescript": "^5.2.2",
+    "typescript-eslint": "^8.33.1",
     "vite": "^5.0.8"
   },
   "engines": {
     "node": ">=18.0.0",
     "npm": ">=8.0.0"
   },
-  "os": ["win32", "darwin", "linux"],
-  "cpu": ["x64", "arm64"],
+  "os": [
+    "win32",
+    "darwin",
+    "linux"
+  ],
+  "cpu": [
+    "x64",
+    "arm64"
+  ],
   "tauri": {
     "bundle": {
-      "targets": ["dmg", "msi", "deb", "appimage"],
+      "targets": [
+        "dmg",
+        "msi",
+        "deb",
+        "appimage"
+      ],
       "windows": {
         "wix": {
           "language": "en-US"

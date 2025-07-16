@@ -12,6 +12,7 @@ export interface SessionInfo {
   name: string;
   path: string;
   created: string;
+  electron_app: ElectronApp;
 }
 
 export interface ArchiveInfo {
@@ -27,6 +28,13 @@ export interface CursorSession {
   created_date: string;
   modified_date: string;
   projects: string[];
+  electron_app: ElectronApp;
+}
+
+export interface ElectronApp {
+  name: string;
+  exec_path: string;
+  icon_path?: string | null;
 }
 
 // Helper function to add timeout to any promise
@@ -91,7 +99,7 @@ export async function launchSession(session: CursorSession, spoofMac: boolean = 
     const timeoutMs = spoofMac ? 60000 : 30000; // Longer timeout if MAC spoofing is enabled
     const result = await withTimeout(
       invoke<string>('launch_session_cmd', { 
-        session: session.name, 
+      session: session.name, 
         spoofMac: spoofMac, 
         connectVpn: connectVpn 
       }),
@@ -112,7 +120,7 @@ export async function spoofMac(interfaceName?: string): Promise<string> {
     // Add timeout protection - 30 seconds for MAC spoofing
     const result = await withTimeout(
       invoke<string>('spoof_mac_cmd', { 
-        interface: interfaceName 
+      interface: interfaceName 
       }),
       30000,
       'MAC address spoofing'
@@ -183,7 +191,8 @@ export async function getSessions(): Promise<CursorSession[]> {
       name: session.name,
       created_date: session.created,
       modified_date: session.created,
-      projects: []
+      projects: [],
+      electron_app: session.electron_app,
     }));
     console.log(`[API] Mapped sessions:`, mappedSessions);
     return mappedSessions;
@@ -193,15 +202,16 @@ export async function getSessions(): Promise<CursorSession[]> {
   }
 }
 
-export async function saveSession(name: string, projects: string[]): Promise<CursorSession | null> {
+export async function saveSession(name: string, projects: string[], electron_app: ElectronApp): Promise<CursorSession | null> {
   try {
-    await invoke<string>('create_session', { name });
+    await invoke<string>('create_session', { name, electron_app });
     return {
       id: name,
       name,
       created_date: new Date().toISOString(),
       modified_date: new Date().toISOString(),
-      projects
+      projects,
+      electron_app,
     };
   } catch (error) {
     console.error('Error saving session:', error);
@@ -233,5 +243,14 @@ export async function openProjects(projects: string[]): Promise<boolean> {
   } catch (error) {
     console.error('Error opening projects:', error);
     return false;
+  }
+} 
+
+export async function listElectronApps(): Promise<ElectronApp[]> {
+  try {
+    return await invoke<ElectronApp[]>('list_electron_apps');
+  } catch (error) {
+    console.error('Error listing Electron apps:', error);
+    return [];
   }
 } 

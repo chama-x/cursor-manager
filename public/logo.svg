@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Professional background with depth -->
+  <rect width="64" height="64" rx="16" fill="url(#gradient)"/>
+  <rect x="2" y="2" width="60" height="60" rx="14" fill="url(#innerGradient)" opacity="0.8"/>
+  
+  <!-- Main window/session representation -->
+  <rect x="12" y="16" width="40" height="28" rx="6" fill="white" fill-opacity="0.95"/>
+  
+  <!-- Window controls (traffic lights style) -->
+  <circle cx="18" cy="22" r="2.5" fill="#ef4444"/>
+  <circle cx="26" cy="22" r="2.5" fill="#f59e0b"/>
+  <circle cx="34" cy="22" r="2.5" fill="#10b981"/>
+  
+  <!-- Code/content lines -->
+  <rect x="16" y="30" width="24" height="2" rx="1" fill="#3b82f6" fill-opacity="0.8"/>
+  <rect x="16" y="34" width="32" height="2" rx="1" fill="#6366f1" fill-opacity="0.6"/>
+  <rect x="16" y="38" width="20" height="2" rx="1" fill="#8b5cf6" fill-opacity="0.4"/>
+  
+  <!-- Cursor representation -->
+  <rect x="38" y="36" width="1.5" height="8" fill="#3b82f6">
+    <animate attributeName="opacity" values="1;0;1" dur="1.2s" repeatCount="indefinite"/>
+  </rect>
+  
+  <!-- Session indicator dots -->
+  <circle cx="46" cy="20" r="1.5" fill="#10b981" opacity="0.8"/>
+  <circle cx="50" cy="20" r="1.5" fill="#3b82f6" opacity="0.6"/>
+  <circle cx="46" cy="48" r="1.5" fill="#f59e0b" opacity="0.4"/>
+  
+  <defs>
+    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1e293b;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#334155;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0f172a;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="innerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#475569;stop-opacity:0.3" />
+      <stop offset="100%" style="stop-color:#1e293b;stop-opacity:0.1" />
+    </linearGradient>
+  </defs>
+</svg> 

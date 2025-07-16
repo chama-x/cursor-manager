@@ -2,23 +2,104 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 use tauri::Runtime;
-use chrono::Local;
+use chrono::{Local, DateTime};
 use serde::{Deserialize, Serialize};
 use std::error::Error;
 use rand::distributions::{Alphanumeric, DistString};
 use fs_extra;
 use tauri_plugin_shell::ShellExt;
+use std::collections::HashMap;
+use thiserror::Error;
+use anyhow::Result;
+use validator::{Validate, ValidationError};
+use path_clean::PathClean;
+use tracing::error;
+use sysinfo::System;
 
 // Module for all command functions
 pub mod commands;
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+// Custom error types for better error handling
+#[derive(Error, Debug)]
+pub enum CursorManagerError {
+    #[error("IO error: {0}")]
+    Io(#[from] std::io::Error),
+    
+    #[error("Serialization error: {0}")]
+    Serialization(#[from] serde_json::Error),
+    
+    #[error("Invalid session name: {message}")]
+    InvalidSessionName { message: String },
+    
+    #[error("Session not found: {name}")]
+    SessionNotFound { name: String },
+    
+    #[error("Archive not found: {name}")]
+    ArchiveNotFound { name: String },
+    
+    #[error("Path security violation: {path}")]
+    PathSecurityViolation { path: String },
+    
+    #[error("Permission denied: {operation}")]
+    PermissionDenied { operation: String },
+    
+    #[error("System command failed: {command}")]
+    CommandFailed { command: String },
+    
+    #[error("Network interface error: {interface}")]
+    NetworkInterfaceError { interface: String },
+    
+    #[error("Validation error: {0}")]
+    Validation(#[from] validator::ValidationErrors),
+    
+    #[error("System monitoring error: {message}")]
+    SystemMonitoring { message: String },
+}
+
+// Custom validation function for paths
+fn validate_path(path: &str) -> Result<(), ValidationError> {
+    let path_buf = PathBuf::from(path);
+    
+    // Check for path traversal attempts
+    if path.contains("..") || path.contains("~") {
+        return Err(ValidationError::new("path_traversal"));
+    }
+    
+    // Ensure path is absolute or relative to safe directories
+    if path_buf.is_relative() {
+        let cwd = std::env::current_dir().map_err(|_| ValidationError::new("invalid_path"))?;
+        let full_path = cwd.join(&path_buf).clean();
+        if !full_path.starts_with(&cwd) {
+            return Err(ValidationError::new("path_escape"));
+        }
+    }
+    
+    Ok(())
+}
+
+// Safe and validated configuration
+#[derive(Debug, Serialize, Deserialize, Clone, Validate)]
 pub struct Config {
-    cursor_app: String,
-    profile_base: String,
-    archive_base: String,
-    workspace_base: String,
-    network_interface: String,
+    #[validate(length(min = 1, message = "Cursor app path cannot be empty"))]
+    pub cursor_app: String,
+    
+    #[validate(custom(function = "validate_path"))]
+    pub profile_base: String,
+    
+    #[validate(custom(function = "validate_path"))]
+    pub archive_base: String,
+    
+    #[validate(custom(function = "validate_path"))]
+    pub workspace_base: String,
+    
+    #[validate(length(min = 1, message = "Network interface cannot be empty"))]
+    pub network_interface: String,
+    
+    // Enhanced configuration
+    pub max_sessions: u32,
+    pub session_timeout_minutes: u32,
+    pub auto_cleanup_archives: bool,
+    pub enable_system_monitoring: bool,
 }
 
 impl Default for Config {
@@ -31,15 +112,20 @@ impl Default for Config {
             archive_base: home.join("cursor-archives").to_string_lossy().to_string(),
             workspace_base: home.join("projects").to_string_lossy().to_string(),
             network_interface: "en0".to_string(),
+            max_sessions: 50,
+            session_timeout_minutes: 1440, // 24 hours
+            auto_cleanup_archives: true,
+            enable_system_monitoring: true,
         }
     }
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct SessionInfo {
-    name: String,
-    path: String,
-    created: String,
+    pub name: String,
+    pub path: String,
+    pub created: String,
+    pub electron_app: Option<ElectronApp>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -50,8 +136,53 @@ pub struct ArchiveInfo {
     original_session: String,
 }
 
+// System monitoring data
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct SystemStats {
+    pub cpu_usage: f32,
+    pub memory_total: u64,
+    pub memory_used: u64,
+    pub active_sessions: u32,
+    pub running_processes: u32,
+    pub network_interfaces: Vec<String>,
+    pub disk_usage: HashMap<String, u64>,
+}
+
+// Running application info
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct RunningApp {
+    pub id: String,
+    pub name: String,
+    pub pid: u32,
+    pub cpu_usage: f64,
+    pub memory_usage: u64,
+    pub start_time: DateTime<Local>,
+    pub status: String,
+}
+
+// MCP Server information
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct MCPServer {
+    pub id: String,
+    pub name: String,
+    pub port: Option<u16>,
+    pub status: String,
+    pub response_time: Option<u32>,
+    pub server_type: String,
+    pub last_ping: Option<DateTime<Local>>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct ElectronApp {
+    pub name: String,
+    pub exec_path: String,
+    pub icon_path: Option<String>,
+}
+
 pub struct CursorManager {
     config: Config,
+    system: System,
+    active_sessions: HashMap<String, SessionInfo>,
 }
 
 impl CursorManager {
@@ -67,7 +198,21 @@ impl CursorManager {
             let _ = fs::create_dir_all(archive_dir);
         }
 
-        Self { config }
+        Self { 
+            config,
+            system: System::new_all(),
+            active_sessions: HashMap::new(),
+        }
+    }
+
+    // Method to get system information
+    pub fn get_system_info(&self) -> &System {
+        &self.system  // Now the field is read
+    }
+    
+    // Method to get the count of active sessions
+    pub fn session_count(&self) -> usize {
+        self.active_sessions.len()  // Now the field is read
     }
 
     // Utility functions
@@ -84,18 +229,20 @@ impl CursorManager {
             let path = entry.path();
             
             if path.is_dir() {
-                let metadata = fs::metadata(&path)?;
-                let created = metadata.created()
-                    .map(|_time| {
-                        Local::now().date_naive().format("%Y-%m-%d").to_string()
-                    })
-                    .unwrap_or_else(|_| "Unknown".to_string());
+                let session_json_path = path.join("session.json");
+                let session_info = if session_json_path.exists() {
+                    let session_data = fs::read_to_string(&session_json_path)?;
+                    serde_json::from_str(&session_data)?
+                } else {
+                    SessionInfo {
+                        name: path.file_name().unwrap().to_string_lossy().to_string(),
+                        path: path.to_string_lossy().to_string(),
+                        created: Local::now().date_naive().format("%Y-%m-%d").to_string(),
+                        electron_app: None,
+                    }
+                };
                 
-                sessions.push(SessionInfo {
-                    name: path.file_name().unwrap().to_string_lossy().to_string(),
-                    path: path.to_string_lossy().to_string(),
-                    created,
-                });
+                sessions.push(session_info);
             }
         }
 
@@ -313,7 +460,7 @@ impl CursorManager {
     }
 
     // Session management functions
-    pub fn create_session(&self, name: &str) -> Result<String, Box<dyn Error>> {
+    pub fn create_session(&self, name: &str, electron_app: Option<ElectronApp>) -> Result<String, Box<dyn Error>> {
         if name.is_empty() {
             return Err("Session name cannot be empty".into());
         }
@@ -324,6 +471,18 @@ impl CursorManager {
         }
         
         fs::create_dir_all(&session_dir)?;
+
+        let session_info = SessionInfo {
+            name: name.to_string(),
+            path: session_dir.to_string_lossy().to_string(),
+            created: Local::now().date_naive().format("%Y-%m-%d").to_string(),
+            electron_app,
+        };
+
+        let session_json_path = session_dir.join("session.json");
+        let session_json_content = serde_json::to_string_pretty(&session_info)?;
+        fs::write(&session_json_path, session_json_content)?;
+
         Ok(format!("Session '{}' created at {}", name, session_dir.to_string_lossy()))
     }
 
@@ -336,6 +495,20 @@ impl CursorManager {
             println!("[ERROR] {}", error_msg);
             return Err(error_msg.into());
         }
+        
+        // Read session.json for electron_app info
+        let session_json_path = session_dir.join("session.json");
+        let electron_app_exec = if session_json_path.exists() {
+            let session_data = fs::read_to_string(&session_json_path)?;
+            let session_info: SessionInfo = serde_json::from_str(&session_data)?;
+            if let Some(app) = session_info.electron_app {
+                app.exec_path
+            } else {
+                self.config.cursor_app.clone()
+            }
+        } else {
+            self.config.cursor_app.clone()
+        };
         
         println!("[DEBUG] Session directory found: {}", session_dir.to_string_lossy());
         let mut result = String::new();
@@ -362,29 +535,29 @@ impl CursorManager {
             // In a real app, we'd wait for user confirmation here
         }
         
-        // Launch Cursor with the profile directory
+        // Launch Electron app with the profile directory
         let args = vec![
             "--user-data-dir=".to_string() + &session_dir.to_string_lossy(),
             "--new-window".to_string(),
         ];
         
-        println!("[DEBUG] Launching Cursor with args: {:?}", args);
-        println!("[DEBUG] Cursor app path: {}", self.config.cursor_app);
+        println!("[DEBUG] Launching Electron app with args: {:?}", args);
+        println!("[DEBUG] Electron app path: {}", electron_app_exec);
         
         // Use shell plugin for the actual launch
         match app.shell()
-            .command(&self.config.cursor_app)
+            .command(&electron_app_exec)
             .args(args)
             .spawn() {
             Ok(cursor_result) => {
                 let pid = cursor_result.1.pid();
-                println!("[DEBUG] Cursor launched successfully with PID: {:?}", pid);
-        result.push_str(&format!("Launched Cursor with session '{}'\n", session));
+                println!("[DEBUG] Electron app launched successfully with PID: {:?}", pid);
+        result.push_str(&format!("Launched Electron app with session '{}'\n", session));
                 result.push_str(&format!("PID: {:?}", pid));
         Ok(result)
             }
             Err(e) => {
-                let error_msg = format!("Failed to launch Cursor: {}", e);
+                let error_msg = format!("Failed to launch Electron app: {}", e);
                 println!("[ERROR] {}", error_msg);
                 Err(error_msg.into())
             }
@@ -470,3 +643,4 @@ impl CursorManager {
         Ok(format!("Archive '{}' deleted", archive))
     }
 }
+

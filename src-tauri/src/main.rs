@@ -5,14 +5,23 @@ use cursor_manager::Config;
 use cursor_manager::commands::*;
 use std::sync::Mutex;
 use tauri_plugin_shell::ShellExt;
+use tracing_subscriber;
 
 #[tokio::main]
-async fn main() {
-    tauri::Builder::default()
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // Initialize logging
+    tracing_subscriber::fmt()
+        .with_env_filter(tracing_subscriber::EnvFilter::from_default_env())
+        .init();
+
+    tracing::info!("Starting Cursor Session Manager");
+
+    let result = tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
         .setup(|app| {
-            // Initialize shell plugin if needed
+            // Initialize shell plugin with error handling
             let _shell = app.shell();
+            tracing::info!("Tauri application setup completed successfully");
             Ok(())
         })
         .manage(Config::default())
@@ -37,7 +46,23 @@ async fn main() {
             // MAC address commands
             spoof_mac_cmd,
             random_mac,
+            
+            // System monitoring commands
+            get_system_stats,
+            get_running_apps,
+            get_mcp_servers,
+            list_electron_apps,
         ])
-        .run(tauri::generate_context!())
-        .expect("error while running tauri application");
+        .run(tauri::generate_context!());
+
+    match result {
+        Ok(_) => {
+            tracing::info!("Application closed successfully");
+            Ok(())
+        }
+        Err(e) => {
+            tracing::error!("Application error: {}", e);
+            Err(e.into())
+        }
+    }
 }

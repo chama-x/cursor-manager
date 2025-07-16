@@ -24,17 +24,20 @@ A professional desktop application for managing and launching Cursor IDE session
 ## 📋 System Requirements
 
 ### macOS
+
 - macOS 10.13 High Sierra or later
 - 4GB RAM minimum, 8GB recommended
 - 100MB free disk space
 
 ### Windows
+
 - Windows 10 1903+ or Windows 11
 - x64 (64-bit) architecture
 - 4GB RAM minimum, 8GB recommended
 - 100MB free disk space
 
 ### Linux
+
 - Ubuntu 18.04+ / Debian 10+ / Fedora 32+ / Arch Linux
 - x64 (64-bit) architecture
 - 4GB RAM minimum, 8GB recommended
@@ -43,11 +46,13 @@ A professional desktop application for managing and launching Cursor IDE session
 ## 🚀 Installation
 
 ### macOS
+
 1. Download `Cursor Session Manager_1.0.0_aarch64.dmg` from [Releases](https://github.com/cursor-session-manager/app/releases)
 2. Open the DMG file and drag the app to Applications folder
 3. Launch from Applications or Spotlight
 
 ### Windows
+
 1. Download `Cursor Session Manager_1.0.0_x64_en-US.msi` from [Releases](https://github.com/cursor-session-manager/app/releases)
 2. Run as administrator and follow installation wizard
 3. Launch from Start Menu or Desktop shortcut
@@ -55,6 +60,7 @@ A professional desktop application for managing and launching Cursor IDE session
 **📖 For detailed Windows setup instructions, see [WINDOWS_SETUP.md](WINDOWS_SETUP.md)**
 
 ### Linux
+
 ```bash
 # Download and install .deb package (Ubuntu/Debian)
 sudo dpkg -i cursor-session-manager_1.0.0_amd64.deb
@@ -67,6 +73,7 @@ chmod +x cursor-session-manager_1.0.0_amd64.AppImage
 ## ⚙️ Cursor IDE Setup
 
 ### macOS/Linux
+
 ```bash
 # Add Cursor to PATH (if not already done)
 echo 'export PATH="/Applications/Cursor.app/Contents/Resources/app/bin:$PATH"' >> ~/.zshrc
@@ -77,6 +84,7 @@ cursor --version
 ```
 
 ### Windows
+
 ```powershell
 # Using Windows Package Manager (Recommended)
 winget install Cursor.Cursor
@@ -98,18 +106,21 @@ For manual Windows setup, see the [Windows Setup Guide](WINDOWS_SETUP.md).
 ## 🔧 Features Overview
 
 ### Session Management
+
 - **Create Sessions**: Define custom sessions with multiple projects
 - **Quick Launch**: One-click launching with customizable commands
 - **Smart Organization**: Dynamic grid layout based on usage frequency
 - **Project Grouping**: Manage multiple related projects in one session
 
 ### Analytics & Insights
+
 - **Usage Tracking**: Visual charts showing session usage patterns
 - **Time Analytics**: Track time spent in different sessions
 - **Activity Visualization**: Pulse charts for session activity
 - **Smart Recommendations**: Sessions resize based on usage patterns
 
 ### Desktop Experience
+
 - **Transparent Borders**: Professional appearance with system integration
 - **Custom Window Controls**: Native macOS/Windows style controls
 - **Draggable Interface**: Drag window by header area
@@ -117,6 +128,7 @@ For manual Windows setup, see the [Windows Setup Guide](WINDOWS_SETUP.md).
 - **Resizable Window**: Adaptive layout with minimum/maximum constraints
 
 ### Security & Production
+
 - **Context Menu Disabled**: Right-click menus disabled in production
 - **Developer Tools Blocked**: F12, Ctrl+Shift+I, etc. disabled
 - **Text Selection Control**: Limited to form inputs only
@@ -125,11 +137,13 @@ For manual Windows setup, see the [Windows Setup Guide](WINDOWS_SETUP.md).
 ## 🛠️ Development
 
 ### Prerequisites
+
 - Node.js 18+
 - Rust 1.70+
 - Tauri CLI v2+
 
 ### Setup
+
 ```bash
 # Clone repository
 git clone https://github.com/cursor-session-manager/app.git
@@ -143,6 +157,7 @@ npm run tauri:dev
 ```
 
 ### Building
+
 ```bash
 # Build for production
 npm run build
@@ -167,6 +182,7 @@ npm run tauri:build:linux      # Linux DEB/AppImage
 ## 🎨 Design System
 
 Built with Apple's Human Interface Guidelines in mind:
+
 - **Color Palette**: Premium grayish design with Apple Intelligence accents
 - **Typography**: SF Pro Display font family with proper weight hierarchy
 - **Spacing**: Apple's 4pt grid system for consistent spacing
@@ -207,6 +223,37 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **GitHub Issues**: [Report bugs or request features](https://github.com/cursor-session-manager/app/issues)
 - **Discussions**: [Join community discussions](https://github.com/cursor-session-manager/app/discussions)
 - **Documentation**: [Browse the docs](https://cursor-session-manager.github.io/docs)
+
+## Enhanced Bottom Bar
+
+The Cursor Session Manager features a redesigned bottom bar with smart server and application monitoring:
+
+### Features
+
+#### **Smart Server Cards**
+- **Auto-adjusting width**: Cards start with a fixed width but expand automatically when server names are longer
+- **Real-time status indicators**: Color-coded status bars (green=online, red=error, yellow=reconnecting, gray=offline)
+- **Clean design**: Shows server name and status when unhovered for a minimal, focused view
+
+#### **Detailed Hover Popups**
+- **Comprehensive information**: Hover over any card to see detailed server/app information
+- **Resource usage metrics**: Real CPU usage, memory consumption, response times, and uptime
+- **Technical details**: Ports, PIDs, endpoints, and last active timestamps
+- **No mock data**: All information is sourced from actual system monitoring
+
+#### **Integrated Controls**
+- **Refresh**: Update status and metrics for individual servers/apps
+- **Stop/Start**: Control running applications and MCP servers
+- **Restart**: Restart failed or stopped services  
+- **Visit**: Direct links to web applications and server endpoints
+- **Smart actions**: Context-aware buttons based on current status
+
+#### **Two-Row Layout**
+- **MCP Servers Row**: Displays all Model Context Protocol servers with their connectivity status
+- **Applications Row**: Shows running applications like web servers, databases, and APIs
+- **Horizontal scrolling**: Seamlessly scroll through cards when there are many services
+
+The bottom bar provides a professional, system administrator-level view of your development environment with easy access to control and monitor all your services.
 
 ---
 

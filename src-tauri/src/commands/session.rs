@@ -1,5 +1,5 @@
 use tauri::{Runtime, State};
-use crate::{Config, CursorManager, SessionInfo};
+use crate::{Config, CursorManager, SessionInfo, ElectronApp};
 
 #[tauri::command]
 pub fn list_sessions(config_state: State<'_, Config>) -> Result<Vec<SessionInfo>, String> {
@@ -8,9 +8,9 @@ pub fn list_sessions(config_state: State<'_, Config>) -> Result<Vec<SessionInfo>
 }
 
 #[tauri::command]
-pub fn create_session(config_state: State<'_, Config>, name: &str) -> Result<String, String> {
+pub fn create_session(config_state: State<'_, Config>, name: &str, electron_app: ElectronApp) -> Result<String, String> {
     let manager = CursorManager::new(Some(config_state.inner().clone()));
-    manager.create_session(name).map_err(|e| e.to_string())
+    manager.create_session(name, electron_app).map_err(|e| e.to_string())
 }
 
 #[tauri::command]
