@@ -1,6 +1,7 @@
 # Cursor Session Manager
 
 A professional desktop application for managing and launching Cursor IDE sessions with premium design and cross-platform support.
+<img width="2454" height="962" alt="CleanShot 2025-07-21 at 1  41 27@2x" src="https://github.com/user-attachments/assets/f29a6da3-1f62-43be-8513-e05be2794bbc" />
 
 ![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
 ![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-lightgrey.svg)
@@ -19,7 +20,9 @@ A professional desktop application for managing and launching Cursor IDE session
 
 ## 🖼️ Screenshot
 
-*Beautiful, modern interface with transparent borders and custom window controls*
+<img width="2846" height="2046" alt="CleanShot 2025-07-21 at 1  43 55@2x" src="https://github.com/user-attachments/assets/6658ae0e-23e7-42a6-8ddc-8f75164c9394" />
+
+<img width="2846" height="2046" alt="CleanShot 2025-07-21 at 1  44 34@2x" src="https://github.com/user-attachments/assets/ec9a180c-f936-4133-890c-64dc7557b58a" />
 
 ## 📋 System Requirements
 
