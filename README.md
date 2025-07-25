@@ -1,271 +1,105 @@
-# Cursor Session Manager
+<div align="center">
+  <img src="https://capsule-render.vercel.app/api?type=waving&height=220&text=Cursor%20Session%20Manager&color=0:2A2A2A,100:1A1A1A&fontColor=E0E0E0&fontSize=60&animation=fadeIn&fontAlignY=40&desc=Professional%20Desktop%20App%20for%20the%20Cursor%20IDE&descAlignY=65&descSize=20" alt="Cursor Session Manager Header">
+</div>
 
-A professional desktop application for managing and launching Cursor IDE sessions with premium design and cross-platform support.
+<div align="center">
+  <a href="https://git.io/typing-svg">
+    <img src="https://readme-typing-svg.herokuapp.com?font=Space+Mono&weight=600&duration=4000&pause=1000&color=909090&width=530&lines=Professional+Session+Management;Native+Desktop+App+for+macOS,+Windows+%26+Linux;Built+with+Tauri,+Rust,+and+React" alt="Typing Animation"/>
+  </a>
+</div>
+
 <img width="2454" height="962" alt="CleanShot 2025-07-21 at 1  41 27@2x" src="https://github.com/user-attachments/assets/f29a6da3-1f62-43be-8513-e05be2794bbc" />
 
-![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
-![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-lightgrey.svg)
-![License](https://img.shields.io/badge/license-MIT-green.svg)
 
-## ✨ Features
+<div align="center">
+  <p>
+    <img src="https://img.shields.io/badge/Version-1.0.0-informational?style=flat-square&color=383838&logoColor=E0E0E0" alt="Version Badge">
+    <img src="https://img.shields.io/badge/License-MIT-informational?style=flat-square&color=383838&logoColor=E0E0E0" alt="License Badge">
+  </p>
+</div>
 
-- **🎯 Session Management**: Create, organize, and launch multiple Cursor IDE sessions
-- **🚀 Quick Launch**: One-click session launching with customizable commands
-- **📁 Project Organization**: Manage multiple projects per session
-- **📊 Usage Analytics**: Visual analytics with time tracking and usage patterns
-- **🎨 Premium Design**: Apple-inspired UI with transparent window borders
-- **🖥️ Native Desktop**: True desktop app experience with custom window controls
-- **🔒 Production-Ready**: Disabled developer tools and context menus for security
-- **🌐 Cross-Platform**: Full support for macOS, Windows, and Linux
+<div align="center">
+  <p>
+    <img src="https://img.shields.io/badge/Tauri-FRAMEWORK-24C8E2?style=flat-square&logo=tauri&logoColor=E0E0E0&color=2A2A2A" alt="Tauri Badge">
+    <img src="https://img.shields.io/badge/Rust-BACKEND-000000?style=flat-square&logo=rust&logoColor=E0E0E0&color=2A2A2A" alt="Rust Badge">
+    <img src="https://img.shields.io/badge/React-FRONTEND-61DAFB?style=flat-square&logo=react&logoColor=E0E0E0&color=2A2A2A" alt="React Badge">
+    <img src="https://img.shields.io/badge/Node.js-RUNTIME-339933?style=flat-square&logo=nodedotjs&logoColor=E0E0E0&color=2A2A2A" alt="Node.js Badge">
+  </p>
+  <p>
+    <img src="https://img.shields.io/badge/Windows-Supported-0078D6?style=flat-square&logo=windows&logoColor=E0E0E0&color=383838" alt="Windows Badge">
+    <img src="https://img.shields.io/badge/macOS-Supported-000000?style=flat-square&logo=apple&logoColor=E0E0E0&color=383838" alt="macOS Badge">
+    <img src="https://img.shields.io/badge/Linux-Supported-FCC624?style=flat-square&logo=linux&logoColor=E0E0E0&color=383838" alt="Linux Badge">
+  </p>
+</div>
 
-## 🖼️ Screenshot
+A professional desktop application for managing and launching **Cursor IDE** sessions. Built with a premium, minimalist design and full cross-platform support for macOS, Windows, and Linux.
 
+---
+### Screenshots
 <img width="2846" height="2046" alt="CleanShot 2025-07-21 at 1  43 55@2x" src="https://github.com/user-attachments/assets/6658ae0e-23e7-42a6-8ddc-8f75164c9394" />
 
 <img width="2846" height="2046" alt="CleanShot 2025-07-21 at 1  44 34@2x" src="https://github.com/user-attachments/assets/ec9a180c-f936-4133-890c-64dc7557b58a" />
 
-## 📋 System Requirements
-
-### macOS
-
-- macOS 10.13 High Sierra or later
-- 4GB RAM minimum, 8GB recommended
-- 100MB free disk space
-
-### Windows
-
-- Windows 10 1903+ or Windows 11
-- x64 (64-bit) architecture
-- 4GB RAM minimum, 8GB recommended
-- 100MB free disk space
-
-### Linux
-
-- Ubuntu 18.04+ / Debian 10+ / Fedora 32+ / Arch Linux
-- x64 (64-bit) architecture
-- 4GB RAM minimum, 8GB recommended
-- 100MB free disk space
-
-## 🚀 Installation
-
-### macOS
-
-1. Download `Cursor Session Manager_1.0.0_aarch64.dmg` from [Releases](https://github.com/cursor-session-manager/app/releases)
-2. Open the DMG file and drag the app to Applications folder
-3. Launch from Applications or Spotlight
-
-### Windows
-
-1. Download `Cursor Session Manager_1.0.0_x64_en-US.msi` from [Releases](https://github.com/cursor-session-manager/app/releases)
-2. Run as administrator and follow installation wizard
-3. Launch from Start Menu or Desktop shortcut
-
-**📖 For detailed Windows setup instructions, see [WINDOWS_SETUP.md](WINDOWS_SETUP.md)**
-
-### Linux
-
-```bash
-# Download and install .deb package (Ubuntu/Debian)
-sudo dpkg -i cursor-session-manager_1.0.0_amd64.deb
-
-# Or use AppImage (Universal)
-chmod +x cursor-session-manager_1.0.0_amd64.AppImage
-./cursor-session-manager_1.0.0_amd64.AppImage
-```
-
-## ⚙️ Cursor IDE Setup
-
-### macOS/Linux
-
-```bash
-# Add Cursor to PATH (if not already done)
-echo 'export PATH="/Applications/Cursor.app/Contents/Resources/app/bin:$PATH"' >> ~/.zshrc
-source ~/.zshrc
-
-# Verify installation
-cursor --version
-```
-
-### Windows
-
-```powershell
-# Using Windows Package Manager (Recommended)
-winget install Cursor.Cursor
-
-# Verify installation
-cursor --version
-```
-
-For manual Windows setup, see the [Windows Setup Guide](WINDOWS_SETUP.md).
-
-## 🎯 Quick Start
-
-1. **Launch the App**: Open Cursor Session Manager from your applications
-2. **Create First Session**: Click "✨ New Session" to create your first session
-3. **Add Projects**: Enter project paths (comma-separated for multiple projects)
-4. **Launch Session**: Click on any session card to launch it instantly
-5. **Organize**: Use the dynamic Bento grid layout that adapts to your usage patterns
-
-## 🔧 Features Overview
-
-### Session Management
-
-- **Create Sessions**: Define custom sessions with multiple projects
-- **Quick Launch**: One-click launching with customizable commands
-- **Smart Organization**: Dynamic grid layout based on usage frequency
-- **Project Grouping**: Manage multiple related projects in one session
-
-### Analytics & Insights
-
-- **Usage Tracking**: Visual charts showing session usage patterns
-- **Time Analytics**: Track time spent in different sessions
-- **Activity Visualization**: Pulse charts for session activity
-- **Smart Recommendations**: Sessions resize based on usage patterns
-
-### Desktop Experience
-
-- **Transparent Borders**: Professional appearance with system integration
-- **Custom Window Controls**: Native macOS/Windows style controls
-- **Draggable Interface**: Drag window by header area
-- **No Title Bar**: Clean, modern desktop app experience
-- **Resizable Window**: Adaptive layout with minimum/maximum constraints
-
-### Security & Production
-
-- **Context Menu Disabled**: Right-click menus disabled in production
-- **Developer Tools Blocked**: F12, Ctrl+Shift+I, etc. disabled
-- **Text Selection Control**: Limited to form inputs only
-- **Secure Execution**: Sandboxed environment for safe operation
-
-## 🛠️ Development
-
-### Prerequisites
-
-- Node.js 18+
-- Rust 1.70+
-- Tauri CLI v2+
-
-### Setup
-
-```bash
-# Clone repository
-git clone https://github.com/cursor-session-manager/app.git
-cd cursor-session-manager
-
-# Install dependencies
-npm install
-
-# Start development server
-npm run tauri:dev
-```
-
-### Building
-
-```bash
-# Build for production
-npm run build
-
-# Build Tauri app
-npm run tauri:build
-
-# Build for specific platforms
-npm run tauri:build:windows    # Windows MSI
-npm run tauri:build:macos      # macOS Apple Silicon
-npm run tauri:build:macos-intel # macOS Intel
-npm run tauri:build:linux      # Linux DEB/AppImage
-```
-
-## 📖 Documentation
-
-- **[Windows Setup Guide](WINDOWS_SETUP.md)** - Comprehensive Windows installation and configuration
-- **[Development Guide](DEVELOPMENT.md)** - Setup development environment
-- **[API Documentation](API.md)** - Session management API reference
-- **[Troubleshooting](TROUBLESHOOTING.md)** - Common issues and solutions
-
-## 🎨 Design System
-
-Built with Apple's Human Interface Guidelines in mind:
-
-- **Color Palette**: Premium grayish design with Apple Intelligence accents
-- **Typography**: SF Pro Display font family with proper weight hierarchy
-- **Spacing**: Apple's 4pt grid system for consistent spacing
-- **Animations**: Apple's signature easing curves and micro-interactions
-- **Shadows**: Depth-aware shadow system for visual hierarchy
-
-## 🔒 Privacy & Security
-
-- **Local Storage**: All data stored locally on your machine
-- **No Telemetry**: No tracking or analytics sent to external servers
-- **Sandboxed**: Runs in secure Tauri environment
-- **Minimal Permissions**: Only requests necessary file system access
-- **Open Source**: Full source code available for audit
-
-## 🤝 Contributing
-
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- **Tauri Team** - For the amazing desktop app framework
-- **Cursor Team** - For creating an incredible AI-powered IDE
-- **React Team** - For the robust UI library
-- **Apple Design Team** - For inspiration on premium UI/UX design
-
-## 📞 Support
-
-- **GitHub Issues**: [Report bugs or request features](https://github.com/cursor-session-manager/app/issues)
-- **Discussions**: [Join community discussions](https://github.com/cursor-session-manager/app/discussions)
-- **Documentation**: [Browse the docs](https://cursor-session-manager.github.io/docs)
-
-## Enhanced Bottom Bar
-
-The Cursor Session Manager features a redesigned bottom bar with smart server and application monitoring:
-
-### Features
-
-#### **Smart Server Cards**
-- **Auto-adjusting width**: Cards start with a fixed width but expand automatically when server names are longer
-- **Real-time status indicators**: Color-coded status bars (green=online, red=error, yellow=reconnecting, gray=offline)
-- **Clean design**: Shows server name and status when unhovered for a minimal, focused view
-
-#### **Detailed Hover Popups**
-- **Comprehensive information**: Hover over any card to see detailed server/app information
-- **Resource usage metrics**: Real CPU usage, memory consumption, response times, and uptime
-- **Technical details**: Ports, PIDs, endpoints, and last active timestamps
-- **No mock data**: All information is sourced from actual system monitoring
-
-#### **Integrated Controls**
-- **Refresh**: Update status and metrics for individual servers/apps
-- **Stop/Start**: Control running applications and MCP servers
-- **Restart**: Restart failed or stopped services  
-- **Visit**: Direct links to web applications and server endpoints
-- **Smart actions**: Context-aware buttons based on current status
-
-#### **Two-Row Layout**
-- **MCP Servers Row**: Displays all Model Context Protocol servers with their connectivity status
-- **Applications Row**: Shows running applications like web servers, databases, and APIs
-- **Horizontal scrolling**: Seamlessly scroll through cards when there are many services
-
-The bottom bar provides a professional, system administrator-level view of your development environment with easy access to control and monitor all your services.
+---
+
+### Core Features
+
+* **Session Management**: Create, organize, and quick-launch multiple Cursor IDE sessions.
+* **Project Organization**: Group multiple project folders into a single, cohesive session.
+* **Usage Analytics**: Visualize time tracking and usage patterns with built-in analytics.
+* **Advanced Monitoring**: A smart bottom bar provides real-time status and resource metrics for integrated servers and applications.
+* **Native Desktop Experience**: A secure, sandboxed Tauri application with a clean, title-bar-less interface and native window controls.
+* **Production-Ready Security**: Developer tools and context menus are disabled for a secure, focused user experience.
 
 ---
 
-<div align="center">
-  <strong>Built with ❤️ for the developer community</strong>
-  <br />
-  <br />
-  <a href="https://cursor.sh">Cursor IDE</a> •
-  <a href="https://tauri.app">Tauri</a> •
-  <a href="https://reactjs.org">React</a> •
-  <a href="https://github.com/cursor-session-manager/app">GitHub</a>
-</div>
+### Installation
+
+Download the latest version for your operating system from the [**GitHub Releases**](https://github.com/cursor-session-manager/app/releases) page.
+
+* **macOS**: Open the `.dmg` file and drag the application to your `Applications` folder.
+* **Windows**: Run the `.msi` installer as an administrator and follow the setup wizard.
+* **Linux**:
+    * For Debian/Ubuntu, install using the `.deb` package:
+        ```bash
+        sudo dpkg -i cursor-session-manager_1.0.0_amd64.deb
+        ```
+    * For other distributions, use the universal `.AppImage`:
+        ```bash
+        chmod +x cursor-session-manager_1.0.0_amd64.AppImage
+        ./cursor-session-manager_1.0.0_amd64.AppImage
+        ```
+
+---
+
+### Quick Start
+
+1.  **Launch the App**: Open Cursor Session Manager.
+2.  **Create a Session**: Click "**New Session**" to begin.
+3.  **Add Projects**: Enter the full path to your project folder(s). Use commas to separate multiple paths.
+4.  **Launch**: Click any session card to instantly open it in the Cursor IDE.
+
+---
+
+### Development Environment
+
+To contribute or run the application from source, ensure you have **Node.js 18+**, **Rust 1.70+**, and the **Tauri CLI v2+** installed.
+
+```bash
+# Clone the repository
+git clone [https://github.com/cursor-session-manager/app.git](https://github.com/cursor-session-manager/app.git)
+cd app
+
+# Install frontend dependencies
+npm install
+
+# Run the app in development mode
+npm run tauri:dev
+
+# Build the app for production
+npm run tauri:build
+````
+
+<div align="center"\>
+<img src="https://capsule-render.vercel.app/api?type=waving\&height=120\&reversal=true\&color=0:1A1A1A,50:2A2A2A,100:383838\&animation=fadeIn\&section=footer" alt="Minimal Footer"\>
+</div\>
